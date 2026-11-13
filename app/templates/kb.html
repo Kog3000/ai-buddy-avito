@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}База знаний{% endblock %}
+{% block heading %}База знаний{% endblock %}
+{% block content %}
+<div class="search">
+  {{ icon('search', 24) }}
+  <input id="kb-search" placeholder="Поиск по разделам и темам: например, «отпуск», «Git», «код-ревью»" aria-label="Поиск по базе знаний" autocomplete="off">
+  <div class="search-results" id="kb-results"></div>
+</div>
+<div class="grid3 kb-grid">
+  {% for c in categories %}
+  <a class="kb-card" href="/kb/{{ c.slug }}">
+    <h3>{{ c.title }}</h3>
+    <div class="meta">{{ c.count }} {{ c.count|plural("тема","темы","тем") }} ~ {{ c.hours }} {{ c.hours|plural("час","часа","часов") }}</div>
+    <div class="pb"><span style="width: {{ c.percent }}%"></span></div>
+  </a>
+  {% endfor %}
+</div>
+<section class="banner">
+  <img src="{{ url_for('static', filename='img/kb-banner-robot.png') }}" alt="AI-buddy">
+  <div class="txt">
+    <h3>Не нашли нужную информацию?</h3>
+    <p>Спросите AI-buddy — он найдёт нужные материалы в базе знаний и объяснит простыми словами.</p>
+  </div>
+  <a class="btn primary" href="/chat">Задать вопрос</a>
+</section>
+<p class="disclaimer">Материалы прототипа тестовые и не являются регламентами Авито.</p>
+{% endblock %}

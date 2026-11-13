@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Стажёры{% endblock %}
+{% block heading %}Мои стажёры{% endblock %}
+{% block content %}
+<div class="tiles">
+  <div class="tile g"><div class="v">{{ metrics.answered_by_bot }}</div><div class="l">вопросов закрыл AI-buddy без наставника</div></div>
+  <div class="tile"><div class="v">{{ metrics.escalated }}</div><div class="l">вопросов передано наставнику</div></div>
+  <div class="tile"><div class="v">{{ metrics.actions_done }}</div><div class="l">оргдействий выполнено через AI-buddy</div></div>
+  <div class="tile g"><div class="v">~{{ ((metrics.mentor_minutes_saved / 60)|round(1)|string)|replace('.', ',') }} ч</div><div class="l">сэкономлено времени наставника (оценка)</div></div>
+</div>
+
+<div class="section-head"><h2 class="section-title">Прогресс адаптации</h2></div>
+<div class="grid2">
+  {% for c in interns %}
+  <div class="intern-card">
+    <div class="top">
+      <div class="m-avatar sm">{{ c.user.initials }}</div>
+      <div class="grow"><h4>{{ c.user.full_name }}</h4><div class="muted">{{ c.user.position }} · {{ c.checklist.weeks[c.checklist.current_week - 1].period|lower }}</div></div>
+      <span class="badge">{{ c.checklist.percent }}%</span>
+    </div>
+    <div class="bar"><span style="width: {{ c.checklist.percent }}%"></span></div>
+    <div class="intern-block">
+      <div class="muted block-title">Следующие шаги</div>
+      {% for s in c.next %}<div>• {{ s.title }} <span class="muted">({{ s.period|lower }})</span></div>{% else %}<div>Всё выполнено</div>{% endfor %}
+    </div>
+    {% if c.goals %}
+    <div class="intern-block">
+      <div class="muted block-title">Цели в трекере</div>
+      {% for g in c.goals %}
+      <div class="goal-line" data-goal="{{ g.id }}">
+        <span class="grow">{{ g.title }}{% if g.metric %} <span class="muted">· {{ g.metric }}</span>{% endif %}</span>
+        {% if g.agreed %}<span class="chip granted">Согласовано</span>
+        {% elif me.role == 'lead' %}<button class="btn xs primary" data-agree="{{ g.id }}">Согласовать</button>
+        {% else %}<span class="chip pending_approval">Ждёт руководителя</span>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <a class="btn xs secondary mt" href="/team/intern/{{ c.user.id }}">Чек-лист стажёра</a>
+  </div>
+  {% else %}<div class="empty">Стажёров пока нет.</div>{% endfor %}
+</div>
+
+{% if questions %}
+<div class="section-head"><h2 class="section-title">Вопросы, которые ждут ответа</h2><a class="btn sm secondary" href="/team/questions">Все вопросы</a></div>
+{% include "_questions.html" %}
+{% endif %}
+{% endblock %}

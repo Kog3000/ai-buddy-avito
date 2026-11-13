@@ -1,0 +1,24 @@
+[project]
+name = "ai-buddy"
+version = "0.1.0"
+description = "AI-buddy — прототип ИИ-наставника для стажёров (Hack&Change 2026, кейс Авито)"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::ResourceWarning"]
+
+[tool.coverage.run]
+source = ["app"]
+branch = false
+omit = ["app/seed_data.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+fail_under = 80
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"

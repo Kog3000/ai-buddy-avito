@@ -1,0 +1,3 @@
+{% extends "base.html" if me else "bare.html" %}
+{% block heading %}{{ code }}{% endblock %}
+{% block content %}<p class="page-lead">{{ message }}</p><a class="btn primary" href="/">На главную</a>{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Профиль
+<div class="modal-bg" id="profile-modal">
+  <form class="modal" id="profile-form">
+    <h3>Редактировать профиль</h3>
+    <div class="field"><label>Имя и фамилия</label><input type="text" name="full_name" value="{{ me.full_name }}" required maxlength="128"></div>
+    <div class="field"><label>Телефон</label><input type="tel" name="phone" value="{{ me.phone or '' }}" placeholder="+7 900 000-00-00"></div>
+    <div class="field"><label>Почта</label><input type="email" name="email" value="{{ me.email }}" required></div>
+    <div class="actions"><button type="button" class="btn secondary" data-close>Отмена</button><button class="btn primary" type="submit">Сохранить</button></div>
+  </form>
+</div>
+{% endblock %}
+{% block topbar %}
+<div class="modal-bg" id="profile-modal">
+  <form class="modal" id="profile-form">
+    <h3>Редактировать профиль</h3>
+    <div class="field"><label>Имя и фамилия</label><input type="text" name="full_name" value="{{ me.full_name }}" required maxlength="128"></div>
+    <div class="field"><label>Телефон</label><input type="tel" name="phone" value="{{ me.phone or '' }}" placeholder="+7 900 000-00-00"></div>
+    <div class="field"><label>Почта</label><input type="email" name="email" value="{{ me.email }}" required></div>
+    <div class="actions"><button type="button" class="btn secondary" data-close>Отмена</button><button class="btn primary" type="submit">Сохранить</button></div>
+  </form>
+</div>
+{% endblock %}
+{% block content %}
+<section class="profile-head">
+  <div class="big-ava">{{ me.initials }}</div>
+  <div class="profile-info">
+    <h2>{{ me.full_name }} <button class="name-edit" data-open-profile aria-label="Редактировать профиль" title="Редактировать профиль">{{ icon('pencil', 24) }}</button></h2>
+    <div class="contacts"><span>{{ me.phone or 'Телефон не указан' }}</span><span>{{ me.email }}</span></div>
+    <span class="team-pill">{{ me.team }}</span>
+  </div>
+  <form method="post" action="/logout" class="logout-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="logout-btn" aria-label="Выйти из аккаунта" title="Выйти из аккаунта">{{ icon('logout', 27) }}</button>
+  </form>
+</section>
+<table class="ptable">
+  {% if me.program %}<tr><td>Программа</td><td>{{ me.program }}</td></tr>{% endif %}
+  <tr><td>Роль</td><td>{{ me.position }}{% if me.role != 'intern' %} · {{ me.role_label }}{% endif %}</td></tr>
+  {% if me.start_date %}<tr><td>Дата начала стажировки</td><td>{{ me.start_date.strftime('%d.%m.%Y') }}</td></tr>{% endif %}
+  {% if me.end_date %}<tr><td>Дата окончания стажировки</td><td>{{ me.end_date.strftime('%d.%m.%Y') }}</td></tr>{% endif %}
+  {% if me.mentor %}<tr><td>Наставник</td><td><a href="/mentor" class="mentor-link"><span class="dot-ava"></span>{{ me.mentor.full_name }} {{ icon('chev-right', 22) }}</a></td></tr>{% endif %}
+  {% if me.lead and me.role == 'intern' %}<tr><td>Руководитель</td><td>{{ me.lead.full_name }}</td></tr>{% endif %}
+</table>
+
+{% if events %}
+<h3 class="events-title">Ближайшие события</h3>
+<div class="events">
+  {% for e in events %}
+  <div class="event {{ e.kind }}"><div class="t">{{ e.label }}</div><div class="w">{{ e.relative }}</div></div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="modal-bg" id="profile-modal">
+  <form class="modal" id="profile-form">
+    <h3>Редактировать профиль</h3>
+    <div class="field"><label>Имя и фамилия</label><input type="text" name="full_name" value="{{ me.full_name }}" required maxlength="128"></div>
+    <div class="field"><label>Телефон</label><input type="tel" name="phone" value="{{ me.phone or '' }}" placeholder="+7 900 000-00-00"></div>
+    <div class="field"><label>Почта</label><input type="email" name="email" value="{{ me.email }}" required></div>
+    <div class="actions"><button type="button" class="btn secondary" data-close>Отмена</button><button class="btn primary" type="submit">Сохранить</button></div>
+  </form>
+</div>
+{% endblock %}

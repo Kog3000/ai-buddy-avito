@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Встречи{% endblock %}
+{% block heading %}Встречи со стажёрами{% endblock %}
+{% block content %}
+<div class="section-head first"><h2 class="section-title">Ждут подтверждения{% if pending %} · {{ pending|length }}{% endif %}</h2></div>
+{% for m in pending %}
+<div class="req meet-req" data-meeting="{{ m.id }}">
+  <div class="top"><h4>{{ m.label }}</h4><span class="chip pending_approval">{{ m.status_label }}</span></div>
+  <div class="rows">
+    <span>Когда</span><span>{{ m.when }}</span>
+    <span>Тема</span><span>{{ m.title }}</span>
+    <span>Повестка</span><span>{{ m.agenda or '—' }}</span>
+  </div>
+  <div class="decide-row">
+    <input class="input comment-input" placeholder="Комментарий стажёру (необязательно)" data-comment>
+    <button class="btn sm primary" data-meet-decide="1">Подтвердить</button>
+    <button class="btn sm secondary" data-meet-decide="0">Отклонить</button>
+  </div>
+</div>
+{% else %}
+<div class="empty">Новых приглашений нет. Когда стажёр выберет время в календаре, приглашение появится здесь.</div>
+{% endfor %}
+
+<div class="section-head"><h2 class="section-title">Запланированные</h2></div>
+{% for m in upcoming %}
+<div class="meet-row"><span class="t">{{ m.label }}<span class="muted small">{{ m.title }}</span></span><span class="w">{{ m.when }}</span><span class="muted small">{{ m.relative }}</span></div>
+{% else %}
+<div class="empty">Запланированных встреч нет.</div>
+{% endfor %}
+{% endblock %}

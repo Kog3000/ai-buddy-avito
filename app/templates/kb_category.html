@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ cat.title }}{% endblock %}
+{% block heading %}{{ cat.title }}{% endblock %}
+{% block content %}
+<div class="crumbs"><a href="/kb">База знаний</a> / {{ cat.title }} · изучено {{ cat.done }} из {{ cat.count }}</div>
+<div class="topic-list">
+  {% for t in cat.topics %}
+  <a class="topic-row {{ 'done' if t.done }}" href="/kb/topic/{{ t.slug }}">
+    <span class="dot"></span><span>{{ t.title }}</span>{% if t.team %}<span class="tag">моя команда</span>{% endif %}
+    <span class="mins">~{{ t.minutes }} мин</span>
+  </a>
+  {% endfor %}
+</div>
+{% if cat.faq %}
+<div class="section-head"><h2 class="section-title">Ответы наставников</h2></div>
+<div class="topic-list">
+  {% for t in cat.faq %}<a class="topic-row" href="/kb/topic/{{ t.slug }}"><span class="dot"></span><span>{{ t.title }}</span><span class="tag">FAQ</span></a>{% endfor %}
+</div>
+{% endif %}
+{% endblock %}

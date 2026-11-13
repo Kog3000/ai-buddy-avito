@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% from "_request.html" import request_card %}
+{% block title %}Согласования{% endblock %}
+{% block heading %}Согласования{% endblock %}
+{% block content %}
+<p class="page-lead">Заявки, где вы — согласующий. Решение мгновенно придёт стажёру в чат AI-buddy.</p>
+<div class="section-head first"><h2 class="section-title">Доступы</h2></div>
+{% for r in access_items %}{{ request_card(r, approve=True) }}{% else %}<div class="empty">Нет заявок на доступ.</div>{% endfor %}
+{% if me.role == 'lead' %}
+<div class="section-head"><h2 class="section-title">Отсутствия</h2></div>
+{% for r in absence_items %}{{ request_card(r, approve=True) }}{% else %}<div class="empty">Нет заявок на отсутствие.</div>{% endfor %}
+{% endif %}
+{% endblock %}

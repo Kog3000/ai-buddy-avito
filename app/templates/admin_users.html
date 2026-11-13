@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Пользователи{% endblock %}
+{% block heading %}Пользователи и кабинеты{% endblock %}
+{% block content %}
+<p class="page-lead">Куратор стажировки создаёт кабинеты стажёров, наставников и руководителей, закрепляет за стажёром наставника и руководителя. Логин и временный пароль передаются сотруднику, при первом входе он может сменить данные профиля.</p>
+<div class="section-head first">
+  <h2 class="section-title">Все пользователи · {{ users|length }}</h2>
+  <button class="btn sm primary" data-open-user>Создать кабинет</button>
+</div>
+<div class="table-wrap">
+<table class="utable">
+  <thead><tr><th>Сотрудник</th><th>Роль</th><th>Команда</th><th>Наставник</th><th>Руководитель</th><th>Старт</th><th></th></tr></thead>
+  <tbody>
+  {% for u in users %}
+  <tr data-user="{{ u.id }}" data-role="{{ u.role }}" data-mentor="{{ u.mentor_id or '' }}" data-lead="{{ u.lead_id or '' }}" class="{{ '' if u.active else 'inactive' }}">
+    <td><b>{{ u.name }}</b><div class="muted small">{{ u.login }} · {{ u.email }}</div></td>
+    <td>{{ u.role_label }}{% if not u.active %} <span class="chip rejected">отключён</span>{% endif %}</td>
+    <td>{{ u.team }}</td>
+    <td>{{ u.mentor or ('—' if u.role == 'intern' else '') }}</td>
+    <td>{{ u.lead or ('—' if u.role == 'intern' else '') }}</td>
+    <td>{{ u.start }}</td>
+    <td><div class="row-actions">
+      {% if u.role == 'intern' %}<button class="btn xs outline" data-assign>Закрепить</button>{% endif %}
+      {% if u.id != me.id %}
+      <button class="btn xs secondary" data-reset>Сбросить пароль</button>
+      <button class="btn xs secondary" data-active="{{ '0' if u.active else '1' }}">{{ 'Отключить' if u.active else 'Включить' }}</button>
+      {% endif %}
+    </div></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<div class="modal-bg" id="user-modal">
+  <form class="modal wide" id="user-form">
+    <h3>Новый кабинет</h3>
+    <div class="form-grid">
+      <div class="field"><label>Имя и фамилия</label><input name="full_name" required></div>
+      <div class="field"><label>Рабочая почта</label><input name="email" type="email" required></div>
+      <div class="field"><label>Роль</label>
+        <select name="role" id="role-select">
+          <option value="intern">Стажёр</option><option value="mentor">Наставник</option>
+        </select></div>
+      <div class="field"><label>Команда</label><input name="team" value="Команда разработчиков"></div>
+      <div class="field"><label>Должность</label><input name="position" placeholder="Стажёр-разработчик"></div>
+      <div class="field intern-only"><label>Программа</label><input name="program" value="Стажировка Avito Tech, осень 2026"></div>
+      <div class="field intern-only"><label>Наставник</label><select name="mentor_id">{% for m in mentors %}<option value="{{ m.id }}">{{ m.full_name }}</option>{% endfor %}</select></div>
+      <div class="field intern-only"><label>Руководитель</label><select name="lead_id">{% for l in leads %}<option value="{{ l.id }}">{{ l.full_name }}</option>{% endfor %}</select></div>
+      <div class="field intern-only"><label>Начало стажировки</label><input name="start_date" type="date"></div>
+      <div class="field intern-only"><label>Окончание</label><input name="end_date" type="date"></div>
+    </div>
+    <label class="check-line intern-only"><input type="checkbox" name="join_chats" checked> Сразу добавить в обязательные чаты команды и потока</label>
+    <div class="actions"><button type="button" class="btn secondary" data-close>Отмена</button><button class="btn primary" type="submit">Создать</button></div>
+  </form>
+</div>
+
+<div class="modal-bg" id="assign-modal">
+  <form class="modal" id="assign-form">
+    <h3>Закрепить наставника и руководителя</h3>
+    <p class="muted small" id="assign-who"></p>
+    <input type="hidden" name="user_id">
+    <div class="field"><label>Наставник</label><select name="mentor_id">{% for m in mentors %}<option value="{{ m.id }}">{{ m.full_name }}</option>{% endfor %}</select></div>
+    <div class="field"><label>Руководитель</label><select name="lead_id">{% for l in leads %}<option value="{{ l.id }}">{{ l.full_name }}</option>{% endfor %}</select></div>
+    <div class="actions"><button type="button" class="btn secondary" data-close>Отмена</button><button class="btn primary" type="submit">Сохранить</button></div>
+  </form>
+</div>
+
+<div class="modal-bg" id="cred-modal">
+  <div class="modal">
+    <h3>Данные для входа</h3>
+    <p class="muted small">Передай сотруднику. Пароль показывается один раз.</p>
+    <div class="cred"><span>Логин</span><b id="cred-login"></b><span>Пароль</span><b id="cred-pass"></b></div>
+    <div class="actions"><button type="button" class="btn primary" data-close data-reload-close>Готово</button></div>
+  </div>
+</div>
+{% endblock %}

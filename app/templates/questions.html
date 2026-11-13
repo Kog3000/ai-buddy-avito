@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Вопросы стажёров{% endblock %}
+{% block heading %}Вопросы стажёров{% endblock %}
+{% block content %}
+<p class="page-lead">Сюда попадают только вопросы, на которые AI-buddy не нашёл ответа в базе знаний.</p>
+{% set questions = open %}
+{% if questions %}{% include "_questions.html" %}{% else %}<div class="empty">Открытых вопросов нет 🎉</div>{% endif %}
+{% if answered %}
+<div class="section-head"><h2 class="section-title">Отвеченные</h2></div>
+{% for q in answered %}
+<div class="q-card"><div class="meta-line">{{ q.intern.full_name }}{% if q.publish_to_faq %} · опубликовано в FAQ{% endif %}</div>
+<div class="q">{{ q.question }}</div><div>{{ q.answer }}</div></div>
+{% endfor %}
+{% endif %}
+{% endblock %}

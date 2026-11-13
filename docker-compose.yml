@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ai_buddy
+      POSTGRES_USER: ai_buddy
+      POSTGRES_PASSWORD: ai_buddy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ai_buddy"]
+      interval: 3s
+      retries: 20
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+psycopg2://ai_buddy:ai_buddy@db:5432/ai_buddy
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Имитация внутреннего ИИ-крона: раз в час дергает задачи AI-buddy
+  cron:
+    image: curlimages/curl:8.11.1
+    depends_on:
+      app:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["while true; do curl -fsS -X POST -H \"X-Cron-Token: $${CRON_TOKEN:-dev-cron-token}\" http://app:8000/api/cron/run; echo; sleep 3600; done"]
+    environment:
+      CRON_TOKEN: ${CRON_TOKEN:-dev-cron-token}
+
+volumes:
+  pgdata:

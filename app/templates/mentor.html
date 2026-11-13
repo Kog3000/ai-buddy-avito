@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Наставник{% endblock %}
+{% block heading %}Наставник{% endblock %}
+{% block content %}
+{% if mentor %}
+<section class="mentor-card mentor-hero">
+  <div class="m-avatar"></div>
+  <div class="info"><h3>{{ mentor.full_name }}</h3><div class="sub">{{ mentor.team }}</div></div>
+</section>
+{% endif %}
+
+<div class="section-head big" id="schedule">
+  <h2 class="section-title">Ближайшие встречи</h2>
+  <button class="btn outline" data-open="#meet-modal">Запланировать встречу</button>
+</div>
+{% for m in meetings %}
+<div class="meet-row {{ m.status }}" data-meeting="{{ m.id }}">
+  <span class="t">{{ m.title }}{% if m.agenda %}<span class="muted small">{{ m.agenda }}</span>{% endif %}</span>
+  <span class="w">{{ m.when }}</span>
+  <span class="chip {{ 'granted' if m.status == 'accepted' else 'pending_approval' }}">{{ m.status_label }}</span>
+  {% if m.status == 'pending' %}<button class="btn xs secondary" data-meeting-cancel>Отменить</button>{% endif %}
+</div>
+{% else %}
+<div class="empty">Встреч пока нет — запланируй 1:1.</div>
+{% endfor %}
+
+<div class="section-head big">
+  <h2 class="section-title">Заметки после встреч</h2>
+  <button class="btn outline" data-note-new>Добавить</button>
+</div>
+<div id="notes">
+{% for n in notes %}
+<div class="note" data-note="{{ n.id }}">
+  <h4>{{ n.title }}</h4><p>{{ n.body }}</p>
+  <button class="edit" data-note-edit aria-label="Редактировать">{{ icon('pencil', 24) }}</button>
+</div>
+{% else %}
+<div class="empty">Заметок пока нет.</div>
+{% endfor %}
+</div>
+
+{% if questions %}
+<div class="section-head big"><h2 class="section-title">Мои вопросы наставнику</h2></div>
+{% for q in questions %}
+<div class="q-card">
+  <span class="chip {{ 'granted' if q.status == 'answered' else 'pending_approval' }}">{{ 'Ответ получен' if q.status == 'answered' else 'Ждёт ответа' }}</span>
+  <div class="q">{{ q.question }}</div>
+  {% if q.answer %}<div>{{ q.answer }}</div>{% endif %}
+</div>
+{% endfor %}
+{% endif %}
+
+<div class="modal-bg" id="meet-modal">
+  <form class="modal wide" id="meet-form">
+    <h3>Запланировать встречу с наставником</h3>
+    <p class="muted small">В календаре отмечены дни, когда свободны и ты, и {{ mentor.full_name if mentor else 'наставник' }}. Наставник получит приглашение и подтвердит время.</p>
+    <div class="cal" id="cal">
+      <div class="cal-head"><button type="button" class="icon-btn" id="cal-prev" aria-label="Предыдущая неделя">{{ icon('chev-left', 20) }}</button><span id="cal-title">Загружаю календарь…</span><button type="button" class="icon-btn" id="cal-next" aria-label="Следующая неделя">{{ icon('chev-right', 20) }}</button></div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+    <div class="field"><label id="slots-label">Выбери день</label><div class="slot-grid" id="slots"></div></div>
+    <div class="field"><label>Тема</label><input type="text" name="title" value="Встреча 1:1 с наставником"></div>
+    <div class="field"><label>Повестка</label><textarea name="agenda" placeholder="Что хочешь обсудить?"></textarea></div>
+    <div class="actions"><button type="button" class="btn secondary" data-close>Отмена</button><button class="btn primary" type="submit">Запланировать</button></div>
+  </form>
+</div>
+
+<div class="modal-bg" id="note-modal">
+  <form class="modal" id="note-form">
+    <h3 id="note-modal-title">Заметка</h3>
+    <input type="hidden" name="note_id">
+    <div class="field"><label>Встреча</label><input type="text" name="title" required></div>
+    <div class="field"><label>О чём договорились</label><textarea name="body" rows="5"></textarea></div>
+    <div class="actions">
+      <button type="button" class="btn secondary push-left" data-note-delete>Удалить</button>
+      <button type="button" class="btn secondary" data-close>Отмена</button><button class="btn primary" type="submit">Сохранить</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% for q in questions %}
+<div class="q-card" data-question="{{ q.id }}">
+  <div class="meta-line">{{ q.intern.full_name }} · {{ q.created_at.strftime('%d.%m %H:%M') }} · AI-buddy не нашёл ответа в базе знаний</div>
+  <div class="q">{{ q.question }}</div>
+  {% if q.attachment %}<a class="att" href="/api/attachments/{{ q.attachment.id }}" target="_blank" rel="noopener"><span class="att-ico">📎</span><span>{{ q.attachment.filename }}<small>{{ (q.attachment.size / 1024)|round|int }} КБ</small></span></a>{% endif %}
+  <div class="field"><textarea placeholder="Ответ стажёру" data-answer></textarea></div>
+  <label class="check-inline"><input type="checkbox" data-publish checked> Добавить ответ в FAQ — следующий стажёр получит его от AI-buddy без участия наставника</label>
+  <button class="btn sm primary" data-send-answer>Ответить</button>
+</div>
+{% endfor %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Чек-лист{% endblock %}
+{% block heading %}Чек-лист{% endblock %}
+{% block content %}
+<div class="cl-head">
+  <h2 id="cl-summary">{{ data.done }} из {{ data.total }} задач выполнено</h2>
+  <span class="pct" id="cl-pct">{{ data.percent }}%</span>
+</div>
+<div class="bar"><span id="cl-bar" style="width: {{ data.percent }}%"></span></div>
+
+{% for w in data.weeks %}
+<div class="week {{ 'open' if w.week == data.current_week }}" data-week="{{ w.week }}">
+  <button class="week-head" type="button" aria-expanded="{{ 'true' if w.week == data.current_week else 'false' }}">
+    {{ icon('chev-down', 24) }}<span>{{ w.period }}. {{ w.title }}</span><span class="cnt" data-cnt>{{ w.done }} из {{ w.total }}</span>
+  </button>
+  <div class="week-body">
+    {% for t in w.tasks %}
+    <div class="task {{ 'done' if t.done }}" data-task="{{ t.id }}">
+      <button class="cbox" type="button" aria-label="Отметить «{{ t.title }}»" aria-pressed="{{ 'true' if t.done else 'false' }}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+      </button>
+      <span class="t-title">{{ t.title }}{% if t.description %}<span class="t-desc">{{ t.description }}</span>{% endif %}</span>
+      {% if t.auto and not t.done %}<span class="auto">закроется автоматически</span>{% endif %}
+      {% if t.source == 'auto' %}<span class="auto">отмечено AI-buddy</span>{% endif %}
+      <span class="t-actions">
+        {% if t.kb_topic %}<a class="btn xs light" href="/kb/topic/{{ t.kb_topic }}">Материал</a>{% endif %}
+        {% if t.chat_prompt %}<a class="btn xs secondary" href="/chat?q={{ t.chat_prompt|urlencode }}">Спросить AI-buddy</a>{% endif %}
+      </span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

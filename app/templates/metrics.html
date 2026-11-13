@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Метрики{% endblock %}
+{% block heading %}Метрики пользы{% endblock %}
+{% block content %}
+<div class="tiles">
+  <div class="tile g"><div class="v">{{ m.deflection_rate }}%</div><div class="l">вопросов закрыто без наставника ({{ m.answered_by_bot }} из {{ m.questions_total }})</div></div>
+  <div class="tile"><div class="v">{{ m.escalated }}</div><div class="l">эскалаций наставнику, отвечено {{ m.escalated_answered }}</div></div>
+  <div class="tile"><div class="v">{% if m.median_access_minutes is none %}—{% elif m.median_access_minutes < 60 %}{{ m.median_access_minutes }} мин{% else %}{{ (m.median_access_minutes / 60)|round(1) }} ч{% endif %}</div><div class="l">медианное время от заявки до выдачи доступа</div></div>
+  <div class="tile"><div class="v">{{ m.csat if m.csat is not none else '—' }}{% if m.csat is not none %}%{% endif %}</div><div class="l">полезных ответов по оценкам стажёров ({{ m.feedback_count }} оценок)</div></div>
+  <div class="tile"><div class="v">{{ m.actions_done }}</div><div class="l">оргдействий через корпоративные сервисы</div></div>
+  <div class="tile g"><div class="v">~{{ ((m.mentor_minutes_saved / 60)|round(1)|string)|replace('.', ',') }} ч</div><div class="l">оценка сэкономленного времени наставника</div></div>
+</div>
+
+<div class="section-head"><h2 class="section-title">Нагрузка на наставника</h2></div>
+<div class="tiles">
+  <div class="tile"><div class="v">~{{ m.mentor_hours_baseline|int }} ч</div><div class="l">в неделю на стажёра в первые 2–3 месяца сейчас (доступы, задачи, погружение, 1:1)</div></div>
+  <div class="tile g"><div class="v">~{{ (m.mentor_hours_saved_per_week|string)|replace('.', ',') }} ч</div><div class="l">в неделю на стажёра снимает AI-buddy (оценка по фактическим обращениям)</div></div>
+</div>
+
+{% if m.categories %}
+<div class="section-head"><h2 class="section-title">Темы обращений</h2></div>
+<table class="data-table">
+  <thead><tr><th>Тема</th><th>Закрыл AI-buddy</th><th>Передано наставнику</th></tr></thead>
+  <tbody>{% for c in m.categories %}<tr><td>{{ c.label }}</td><td>{{ c.bot }}</td><td>{{ c.mentor }}</td></tr>{% endfor %}</tbody>
+</table>
+{% endif %}
+
+<div class="section-head"><h2 class="section-title">Базовые показатели онбординга и цели</h2></div>
+<table class="data-table">
+  <thead><tr><th>Показатель</th><th>Сейчас</th><th>Цель с AI-buddy</th><th>За счёт чего</th></tr></thead>
+  <tbody>{% for b in m.baseline %}<tr><td>{{ b.name }}</td><td>{{ b.now }}</td><td><b>{{ b.target }}</b></td><td class="muted">{{ b.lever }}</td></tr>{% endfor %}</tbody>
+</table>
+<p class="meta-line">«Сейчас» — приблизительные данные Авито по стажёрам. Цели — гипотезы прототипа, проверяются в пилоте.</p>
+
+<div class="section-head"><h2 class="section-title">Как проверить эффект на стажёрах</h2></div>
+<div class="card-lav md wide-md">
+  <p><b>Дизайн эксперимента.</b> Стажёров потока делим на две группы через runtime feature flag: с AI-buddy и с текущим процессом. Сравниваем через 4 недели.</p>
+  <ul>
+    <li><b>Время до первой самостоятельной задачи</b> — сейчас ~2 недели; считаем в днях до первого смёрженного MR с учётом направления (основная метрика для стажёра).</li>
+    <li><b>Нагрузка на наставника</b> — сейчас ~5 ч/нед в первые 2–3 месяца; считаем обращения по темам (оргвопросы, задачи, профессиональные, развитие, обратная связь) и часы 1:1 по календарю.</li>
+    <li><b>Скорость оргшагов</b> — время до выдачи основных доступов, доля задач 1-й недели, закрытых вовремя.</li>
+    <li><b>Качество ответов</b> — доля 👍, доля эскалаций, доля вопросов, повторно заданных наставнику после ответа бота.</li>
+    <li><b>Удовлетворённость чек-листом</b> — сейчас 68%, самый слабый показатель; опрос в конце 2-го месяца.</li>
+    <li><b>Guardrail</b> — удовлетворённость онбордингом (9/10) и наставником (90%) не ниже контрольной группы.</li>
+  </ul>
+  <p class="muted">Оценка экономии: {{ 5 }} мин на вопрос, закрытый ботом, и 10 мин на оргдействие — допущение прототипа, уточняется в пилоте.</p>
+</div>
+
+{% if me.role == 'lead' %}
+<div class="section-head"><h2 class="section-title">Feature flags (runtime)</h2></div>
+<div>
+  {% for f in flags %}
+  <div class="flag-row"><div><b>{{ f.key }}</b><div class="meta-line">{{ f.description }}</div></div>
+    <label class="switch"><input type="checkbox" data-flag="{{ f.key }}" {{ 'checked' if f.enabled }}><span></span></label></div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,76 @@
+{% from "_icons.html" import icon, sparkle, logo %}<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}AI-buddy{% endblock %} · AI-buddy</title>
+  <link rel="preload" href="{{ url_for('static', filename='fonts/Gilroy-Regular.woff2') }}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='img/chat-avatar.png') }}">
+</head>
+<body>
+<div class="layout">
+  <div class="mobile-bar">
+    <button class="burger" data-drawer aria-label="Меню">{{ icon('menu', 22) }}</button>
+    {{ logo() }}
+    <a class="avatar sm" href="/profile">{{ me.initials }}</a>
+  </div>
+  <div class="drawer-backdrop" data-drawer></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">{{ logo() }}<button class="drawer-close" data-drawer aria-label="Закрыть меню">{{ icon('close', 22) }}</button></div>
+    <nav class="nav">
+      {% if me.role == 'intern' %}
+        <a href="/home" class="{{ 'active' if active == 'home' }}">{{ icon('home', 19) }}Главная</a>
+        <a href="/chat" class="{{ 'active' if active == 'chat' }}">{{ icon('chat', 19) }}Чат с AI-buddy</a>
+        <a href="/checklist" class="{{ 'active' if active == 'checklist' }}">{{ icon('check', 19) }}Чек-лист</a>
+        <a href="/kb" class="{{ 'active' if active == 'kb' }}">{{ icon('book', 19) }}База знаний</a>
+        <a href="/progress" class="{{ 'active' if active == 'progress' }}">{{ icon('progress', 19) }}Мой прогресс</a>
+        <a href="/mentor" class="{{ 'active' if active == 'mentor' }}">{{ icon('user', 19) }}Наставник</a>
+        <a href="/access" class="{{ 'active' if active == 'access' }}">{{ icon('key', 19) }}Доступы и отгулы</a>
+      {% elif me.role == 'admin' %}
+        <a href="/admin/users" class="{{ 'active' if active == 'admin' }}">{{ icon('users', 19) }}Пользователи</a>
+        <a href="/metrics" class="{{ 'active' if active == 'metrics' }}">{{ icon('metrics', 19) }}Метрики</a>
+        <a href="/kb" class="{{ 'active' if active == 'kb' }}">{{ icon('book', 19) }}База знаний</a>
+      {% else %}
+        <a href="/team" class="{{ 'active' if active == 'team' }}">{{ icon('team', 19) }}Стажёры</a>
+        {% if me.role == 'mentor' %}
+        <a href="/meetings" class="{{ 'active' if active == 'meetings' }}">{{ icon('calendar', 19) }}Встречи</a>
+        {% endif %}
+        <a href="/team/questions" class="{{ 'active' if active == 'questions' }}">{{ icon('question', 19) }}Вопросы стажёров</a>
+        <a href="/approvals" class="{{ 'active' if active == 'approvals' }}">{{ icon('approve', 19) }}Согласования</a>
+        <a href="/metrics" class="{{ 'active' if active == 'metrics' }}">{{ icon('metrics', 19) }}Метрики</a>
+        <a href="/kb" class="{{ 'active' if active == 'kb' }}">{{ icon('book', 19) }}База знаний</a>
+        <a href="/chat" class="{{ 'active' if active == 'chat' }}">{{ icon('chat', 19) }}AI-ассистент</a>
+      {% endif %}
+    </nav>
+    <nav class="nav nav-bottom">
+      <a href="/profile" class="{{ 'active' if active == 'profile' }} only-mobile">{{ icon('user', 19) }}Профиль</a>
+      <a href="/help" class="{{ 'active' if active == 'help' }}">{{ icon('help', 19) }}Помощь</a>
+    </nav>
+  </aside>
+  <main class="main">
+    {% block topbar %}
+    <header class="topbar">
+      <h1 class="page-title">{{ sparkle(44) }}<span>{% block heading %}{% endblock %}</span></h1>
+      <div class="top-right">
+        <div class="notif-wrap">
+          <button class="bell" data-toggle="#notif" data-notif-open aria-label="Уведомления">{{ icon('bell', 19) }}{% if unread_count %}<span class="count">{{ unread_count }}</span>{% endif %}</button>
+          <div class="dropdown notif" id="notif">
+            <div class="notif-head">Уведомления</div>
+            {% for n in notifications %}<a href="{{ n.link or '#' }}" class="{{ 'unread' if not n.read }}"><span class="dot"></span><span class="notif-text">{{ n.text }}</span><time>{{ n.created_at.strftime('%d.%m %H:%M') }}</time></a>{% else %}<div class="empty">Уведомлений пока нет</div>{% endfor %}
+          </div>
+        </div>
+        <a class="avatar" href="/profile" title="{{ me.full_name }} · {{ me.role_label }}">{{ me.initials }}</a>
+      </div>
+    </header>
+    {% endblock %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/pages.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

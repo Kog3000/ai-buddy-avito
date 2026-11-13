@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Главная{% endblock %}
+{% block heading %}AI-buddy{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-text">
+    <h2>Привет, {{ me.first_name }}!</h2>
+    <p>Я&nbsp;— AI-buddy, твой помощник в&nbsp;адаптации в&nbsp;процессе стажировки. Помогу разобраться в&nbsp;процессах, задачах и&nbsp;найти нужную информацию.</p>
+    <a class="btn primary" href="/chat">Задать вопрос</a>
+  </div>
+  <img class="hero-img" src="{{ url_for('static', filename='img/home-hero.png') }}" alt="AI-buddy">
+</section>
+
+<section class="home-row">
+  <div class="card-plain home-card">
+    <div class="card-head">
+      <div><h3>Твой чек-лист</h3><div class="sub">{{ checklist.done }} из {{ checklist.total }} задач выполнено</div></div>
+      <span class="badge">{{ checklist.percent }}%</span>
+    </div>
+    <div class="bar"><span style="width: {{ checklist.percent }}%"></span></div>
+    <a class="btn secondary wide" href="/progress">Посмотреть прогресс</a>
+  </div>
+  <div class="card-blue home-card next-steps">
+    <h3>Твои следующие шаги</h3>
+    {% for s in steps %}
+      <a class="step-row" href="{{ '/chat?q=' ~ (s.chat_prompt|urlencode) if s.chat_prompt else '/checklist' }}">
+        <span class="box"></span><span class="step-title">{{ s.title }}</span><span class="chev">{{ icon('chev-right', 19) }}</span>
+      </a>
+    {% else %}
+      <div class="empty">Все шаги выполнены</div>
+    {% endfor %}
+  </div>
+</section>
+
+{% if mentor %}
+<section class="mentor-card">
+  <div class="m-avatar"></div>
+  <div class="info">
+    <h3>Твой наставник</h3>
+    <div class="sub">{{ mentor.full_name }}</div>
+  </div>
+  <a class="btn primary" href="/mentor#schedule">Запланировать встречу</a>
+</section>
+{% endif %}
+{% endblock %}

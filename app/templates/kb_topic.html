@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ topic.title }}{% endblock %}
+{% block heading %}{{ topic.title }}{% endblock %}
+{% block content %}
+<div class="crumbs"><a href="/kb">База знаний</a> / <a href="/kb/{{ cat.slug }}">{{ cat.title }}</a> · ~{{ topic.minutes }} мин</div>
+<article class="md">{{ topic.body|md }}</article>
+<div class="topic-actions">
+  <button class="btn {{ 'secondary' if done }}" id="topic-done" data-slug="{{ topic.slug }}" data-done="{{ '1' if done else '0' }}">{{ 'Изучено ✓' if done else 'Отметить изученным' }}</button>
+  <a class="btn light" href="/chat?q={{ ('Объясни подробнее: ' ~ topic.title)|urlencode }}">Спросить AI-buddy</a>
+</div>
+<p class="disclaimer">Тестовый материал прототипа — не является регламентом Авито.</p>
+{% endblock %}

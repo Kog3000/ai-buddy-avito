@@ -1,0 +1,32 @@
+{% macro request_card(r, approve=False, cancel=False) -%}
+<div class="req" data-req="{{ r.type }}/{{ r.id }}">
+  <div class="top">
+    <h4>{% if r.type == 'access' %}№A-{{ r.id }} · Доступ: {{ r.resource }}{% else %}№O-{{ r.id }} · {{ r.kind_label }}{% endif %}{% if approve %} <span class="muted req-user">— {{ r.user }}</span>{% endif %}</h4>
+    <span class="chip {{ r.status }}">{{ r.status_label }}</span>
+  </div>
+  <div class="rows">
+    {% if r.type == 'access' %}
+      <span>Уровень</span><span>{{ r.level_label }}</span>
+      <span>Проект</span><span>{{ r.project }}</span>
+      <span>Обоснование</span><span>{{ r.justification }}</span>
+      <span>Согласующий</span><span>{{ r.approver }}</span>
+      {% if r.comment %}<span>Комментарий</span><span>{{ r.comment }}</span>{% endif %}
+    {% else %}
+      <span>Даты</span><span>{{ r.period }}</span>
+      <span>Комментарий</span><span>{{ r.comment or '—' }}</span>
+      <span>Согласующий</span><span>{{ r.approver }}</span>
+      {% if r.decision_comment %}<span>Решение</span><span>{{ r.decision_comment }}</span>{% endif %}
+    {% endif %}
+  </div>
+  <div class="tl">{% for s in r.timeline %}<span class="s {{ s.status }}" title="{{ s.actor }} {{ s.note }}">{{ s.at }} · {{ s.label }}</span>{% endfor %}</div>
+  {% if approve %}
+  <div class="decide-row">
+    <input class="input comment-input" placeholder="Комментарий (необязательно)" data-comment>
+    <button class="btn sm primary" data-decide="1">Согласовать</button>
+    <button class="btn sm secondary" data-decide="0">Отклонить</button>
+  </div>
+  {% elif cancel and r.status == 'pending_approval' %}
+  <button class="btn xs secondary mt" data-cancel>Отменить заявку</button>
+  {% endif %}
+</div>
+{%- endmacro %}

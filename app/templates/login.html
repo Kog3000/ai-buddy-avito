@@ -1,0 +1,59 @@
+{% from "_icons.html" import logo, logo_buddy, icon %}<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Вход · AI-buddy</title>
+<link rel="icon" href="{{ url_for('static', filename='img/chat-avatar.png') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head><body>
+<main class="login-page">
+  <div class="login-box">
+    <div class="login-logos">{{ logo() }}{{ logo_buddy() }}</div>
+    {% if error %}<div class="login-error" role="alert">{{ error }}</div>{% endif %}
+    <form method="post" id="login-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="login-field">
+        <label for="login">Ваш логин</label>
+        <input type="text" id="login" name="login" placeholder="example@mail.ru" autocomplete="username" required>
+      </div>
+      <div class="login-field">
+        <label for="password">Ваш пароль</label>
+        <div class="pwd-wrap">
+          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+          <button type="button" class="pwd-eye" id="pwd-eye" aria-label="Показать пароль">{{ icon('eye', 24) }}</button>
+        </div>
+      </div>
+      <button type="button" class="link-btn" data-hint="forgot">Забыли пароль?</button>
+      <button class="btn primary wide" type="submit">Войти</button>
+      <button class="btn outline wide" type="button" data-hint="register">Зарегистрироваться</button>
+      <p class="login-hint" id="login-hint" hidden></p>
+    </form>
+    <details class="accounts">
+      <summary>Тестовые аккаунты прототипа (пароль <b>demo123</b>)</summary>
+      {% for login, label in accounts %}
+      <button type="button" data-login="{{ login }}"><b>{{ login }}</b><span>{{ label }}</span></button>
+      {% endfor %}
+    </details>
+  </div>
+</main>
+<script>
+const hints = {
+  forgot: "В Авито пароль восстанавливается через корпоративную авторизацию. В прототипе используйте тестовые аккаунты ниже.",
+  register: "Учётная запись стажёра создаётся автоматически при оформлении. В прототипе используйте тестовые аккаунты ниже.",
+};
+document.querySelectorAll("[data-hint]").forEach((b) => b.addEventListener("click", () => {
+  const p = document.getElementById("login-hint");
+  p.textContent = hints[b.dataset.hint]; p.hidden = false;
+  document.querySelector(".accounts").open = true;
+}));
+document.getElementById("pwd-eye").addEventListener("click", (e) => {
+  const p = document.getElementById("password");
+  p.type = p.type === "password" ? "text" : "password";
+  e.currentTarget.setAttribute("aria-label", p.type === "password" ? "Показать пароль" : "Скрыть пароль");
+});
+document.querySelectorAll("[data-login]").forEach((b) => b.addEventListener("click", () => {
+  document.getElementById("login").value = b.dataset.login;
+  document.getElementById("password").value = "demo123";
+  document.getElementById("login-form").submit();
+}));
+</script>
+</body></html>

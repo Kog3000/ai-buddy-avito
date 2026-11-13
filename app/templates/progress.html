@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Мой прогресс{% endblock %}
+{% block heading %}Мой прогресс{% endblock %}
+{% block content %}
+{% set pct = data.percent %}
+{% set circ = 2 * 3.14159 * 93 %}
+<div class="progress-top">
+  <div class="ring-wrap">
+    <div class="ring">
+      <svg width="164" height="164" viewBox="0 0 205 205" aria-hidden="true">
+        <circle cx="102.5" cy="102.5" r="93" fill="none" stroke="#F1F1F8" stroke-width="19"/>
+        <circle cx="102.5" cy="102.5" r="93" fill="none" stroke="#00AAFF" stroke-width="19" stroke-linecap="round"
+          stroke-dasharray="{{ circ * pct / 100 }} {{ circ }}" transform="rotate(-90 102.5 102.5)"/>
+      </svg>
+      <div class="val">{{ pct }}%</div>
+    </div>
+    <div><h3>Прогресс адаптации</h3><div class="sub">{{ data.done }} из {{ data.total }} задач</div></div>
+  </div>
+  <div class="card-plain home-card">
+    <div class="card-head">
+      <div><h3>База знаний</h3><div class="sub">{{ kb_progress.done }} из {{ kb_progress.total }} тем пройдено</div></div>
+      <span class="badge">{{ ('%g' % kb_progress.percent)|replace('.', ',') }}%</span>
+    </div>
+    <div class="bar"><span style="width: {{ [kb_progress.percent, 3]|max }}%"></span></div>
+    <a class="btn secondary wide" href="/kb">Продолжить обучение</a>
+  </div>
+</div>
+
+<div class="plan-head">
+  <h2 class="section-title">План адаптации</h2>
+  <div class="week-nav">
+    <button class="round" id="wk-prev" aria-label="Назад">{{ icon('chev-left', 19) }}</button>
+    <span id="wk-label">Этап {{ data.current_week }} из {{ data.weeks|length }}</span>
+    <button class="round" id="wk-next" aria-label="Вперёд">{{ icon('chev-right', 19) }}</button>
+  </div>
+</div>
+<div id="plan" data-current="{{ data.current_week }}" data-total="{{ data.weeks|length }}">
+  <div class="timeline" id="timeline"></div>
+  <div class="wk-cards" id="wk-cards">
+    {% for w in data.weeks %}
+    <a class="wk {{ 'cur' if w.week == data.current_week }}" data-w="{{ w.week }}" href="/checklist">
+      <div class="h"><span>{{ w.period }}</span><span class="n-done">{{ w.done }} из {{ w.total }}</span></div>
+      <div class="n">{{ w.title }}</div>
+      <div class="pb"><span style="width: {{ (w.done * 100 / w.total)|round }}%"></span></div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="section-head">
+  <h2 class="section-title">Трекер целей</h2>
+</div>
+<p class="muted section-sub">Цели и ожидания, о которых вы договорились с руководителем на первой неделе. Для каждой укажи понятный результат — по нему в конце этапа вы вместе решите, выполнена ли цель. Руководитель подтверждает цели, наставник видит их на встречах 1:1.</p>
+<div id="goals">
+  {% for g in goals %}
+  <div class="goal-row {{ 'done' if g.status == 'done' }}" data-goal="{{ g.id }}">
+    <input type="checkbox" class="goal-check" {{ 'checked' if g.status == 'done' }} aria-label="Выполнено">
+    <div class="g-t">{{ g.title }}<div class="g-m">{{ g.kind_label }}{% if g.metric %} · Готово, когда: {{ g.metric }}{% endif %}{% if g.due %} · до {{ g.due }}{% endif %}</div></div>
+    {% if g.agreed %}<span class="chip granted">Согласовано</span>{% else %}<span class="chip pending_approval">Ждёт согласования</span>{% endif %}
+    <button class="btn xs secondary" data-del>Удалить</button>
+  </div>
+  {% else %}
+  <div class="empty">Пока пусто. Добавь цели, о которых договорились с руководителем, — это задача второй недели чек-листа.</div>
+  {% endfor %}
+</div>
+<form class="inline-form" id="goal-form">
+  <div class="field"><label>Цель или ожидание</label><input type="text" name="title" required placeholder="Закрыть 2 задачи из бэклога"></div>
+  <div class="field"><label>Как поймём, что цель достигнута</label><input type="text" name="metric" placeholder="Например: 2 merge request приняты в main"></div>
+  <div class="field"><label>Срок</label><input type="date" name="due"></div>
+  <button class="btn primary" type="submit">Добавить</button>
+</form>
+{% endblock %}

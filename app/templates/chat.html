@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Чат{% endblock %}
+{% block heading %}Чат с AI-buddy{% endblock %}
+{% block content %}
+<div class="chat-wrap">
+  <div class="chat-log" id="chat-log" aria-live="polite"></div>
+  <div class="attach-chip" id="attach-chip" hidden><span>{{ icon('file', 18) }}<b id="attach-name"></b><span class="muted" id="attach-size"></span></span><button type="button" id="attach-clear" aria-label="Убрать файл">{{ icon('close', 16) }}</button></div>
+  <form class="composer" id="composer" autocomplete="off">
+    <label class="icon-btn attach-btn" title="Прикрепить файл или скриншот (до 5 МБ)">{{ icon('clip', 27) }}
+      <input type="file" id="chat-file" hidden accept=".png,.jpg,.jpeg,.gif,.webp,.pdf,.txt,.md,.log,.csv,.json,.docx,.xlsx,.pptx,.zip"></label>
+    <div class="input-wrap">
+      <input id="chat-input" maxlength="2000" placeholder="{{ 'Спроси про стажёров, встречи или регламенты' if me.role != 'intern' else 'Напишите вопрос' }}" aria-label="Сообщение">
+      <button class="send" id="send-btn" type="submit" aria-label="Отправить">{{ icon('send', 27) }}</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>window.BOT_AVATAR = "{{ url_for('static', filename='img/chat-avatar.png') }}";</script>
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

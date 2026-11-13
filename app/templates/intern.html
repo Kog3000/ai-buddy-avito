@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ intern.full_name }}{% endblock %}
+{% block heading %}{{ intern.full_name }}{% endblock %}
+{% block content %}
+<div class="crumbs"><a href="/team">Мои стажёры</a> / {{ intern.full_name }} · {{ data.done }} из {{ data.total }} задач ({{ data.percent }}%)</div>
+<div class="bar"><span style="width: {{ data.percent }}%"></span></div>
+{% for w in data.weeks %}
+<div class="week {{ 'open' if w.week == data.current_week }}">
+  <button class="week-head" type="button">{{ icon('chev-down', 14) }}<span>{{ w.period }}. {{ w.title }}</span><span class="cnt">{{ w.done }} из {{ w.total }}</span></button>
+  <div class="week-body">
+    {% for t in w.tasks %}
+    <div class="task {{ 'done' if t.done }}"><span class="cbox"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span><span class="t-title">{{ t.title }}</span></div>
+    {% endfor %}
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

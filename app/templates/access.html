@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% from "_request.html" import request_card %}
+{% block title %}Доступы и отгулы{% endblock %}
+{% block heading %}Доступы и отгулы{% endblock %}
+{% block content %}
+<p class="page-lead">Здесь видно, к каким сервисам и рабочим чатам у тебя уже есть доступ, а что ещё нужно запросить. Заявки AI-buddy заполняет сам — тебе остаётся подтвердить.</p>
+<div class="tabs" role="tablist">
+  <a href="?tab=services" class="tab {{ 'active' if tab == 'services' }}" role="tab">Сервисы</a>
+  <a href="?tab=chats" class="tab {{ 'active' if tab == 'chats' }}" role="tab">Чаты и каналы{% if missing %} <span class="tab-badge">{{ missing }}</span>{% endif %}</a>
+  <a href="?tab=absence" class="tab {{ 'active' if tab == 'absence' }}" role="tab">Отгулы и отпуска</a>
+</div>
+
+{% if tab == 'services' %}
+<div class="section-head first">
+  <h2 class="section-title">Рабочие сервисы</h2>
+  <a class="btn sm primary" href="/chat?q={{ 'Помоги настроить доступы к основным сервисам'|urlencode }}">Запросить все основные</a>
+</div>
+<div class="svc-list">
+{% for s in services %}
+  {% set r = s.request %}
+  <div class="svc {{ r.status if r else 'none' }}">
+    <div class="svc-main">
+      <div class="svc-name">{{ s.name }}{% if s.base %} <span class="tag">основной</span>{% endif %}</div>
+      <div class="muted small">{{ s.description }}</div>
+      {% if r and r.status == 'pending_approval' %}<div class="small">Заявка №A-{{ r.id }} · {{ r.level_label }} · согласует {{ r.approver }}</div>{% endif %}
+      {% if r and r.status == 'rejected' and r.comment %}<div class="small">Отклонено: {{ r.comment }}</div>{% endif %}
+    </div>
+    <div class="svc-side">
+      {% if r and r.status == 'granted' %}<span class="chip granted">Доступ есть · {{ r.level_label }}</span>
+      {% elif r and r.status == 'pending_approval' %}<span class="chip pending_approval">На согласовании</span>
+        <button class="btn xs secondary" data-req-cancel="access/{{ r.id }}">Отменить</button>
+      {% elif not s.levels %}<span class="chip none">Стажёрам не выдаётся</span>
+      {% else %}
+        {% if r and r.status == 'rejected' %}<span class="chip rejected">Отклонено</span>{% endif %}
+        <a class="btn xs outline" href="/chat?q={{ ('Запроси доступ к ' ~ s.name)|urlencode }}">Запросить</a>
+      {% endif %}
+    </div>
+  </div>
+{% endfor %}
+</div>
+
+{% elif tab == 'chats' %}
+<div class="section-head first">
+  <h2 class="section-title">Чаты и каналы мессенджера</h2>
+  {% if missing %}<button class="btn sm primary" data-join-all>Добавить меня во все обязательные ({{ missing }})</button>{% endif %}
+</div>
+<p class="muted section-sub">Обязательные каналы — командные, канал потока стажёров, ИТ-поддержка и объявления. Остальные — по желанию.</p>
+<div class="svc-list">
+{% for c in chats %}
+  <div class="svc {{ 'granted' if c.joined else 'none' }}">
+    <div class="svc-main"><div class="svc-name">{{ c.name }}{% if c.required %} <span class="tag">обязательный</span>{% endif %}</div><div class="muted small">{{ c.description }}</div></div>
+    <div class="svc-side">
+      {% if c.joined %}<span class="chip granted">Ты в канале</span>{% else %}<button class="btn xs outline" data-join="{{ c.code }}">Вступить</button>{% endif %}
+    </div>
+  </div>
+{% endfor %}
+</div>
+
+{% else %}
+<div class="section-head first">
+  <h2 class="section-title">Отгулы, отпуска, больничные</h2>
+  <a class="btn sm primary" href="/chat?q={{ 'Хочу оформить отгул'|urlencode }}">Оформить</a>
+</div>
+<p class="muted section-sub">Отсутствие согласует руководитель, наставник получает уведомление. Одобренные даты попадают в календарь.</p>
+{% for r in absence_requests %}{{ request_card(r, cancel=True) }}{% else %}<div class="empty">Заявок на отсутствие нет.</div>{% endfor %}
+{% endif %}
+{% endblock %}
